@@ -20,21 +20,28 @@ public class Logic implements Hand.EndCardsListener{
     private GameState mState;
     private int mNumberOfPlayers;
 
-    private List<Hand> mHands, mEndHands;
+    private Table mTable;
+
+    private List<Hand> mEndHands;
+
+
     private Deck mDeck;
 
     public Logic() {
         mState = GameState.DEAL;
         mNumberOfPlayers = 4;
         mDeck = new Deck();
-        mHands = new ArrayList<>();
-        mEndHands = new ArrayList<>();
         mQueue = new LinkedBlockingQueue<Runnable>();
+
+        mTable = new Table(mDeck, mNumberOfPlayers, mQueue);
+
+        mEndHands = new ArrayList<>();
+/*
         for (int i=0; i<mNumberOfPlayers; ++i) {
             Hand h = new Hand(i, i == 0 ? Hand.HandType.PLAYER : Hand.HandType.CPU, mDeck, mQueue);
             mHands.add(h);
             h.SetEndCardListener(this);
-        }
+        }*/
     }
 
     public void Run() {
@@ -60,8 +67,8 @@ public class Logic implements Hand.EndCardsListener{
     }
 
     private void SelectEndCards() {
-        mEndHands.addAll(mHands);
-        for (final Hand h : mHands) {
+        mEndHands.addAll(mTable.getHands());
+        for (final Hand h : mTable.getHands()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -81,19 +88,6 @@ public class Logic implements Hand.EndCardsListener{
 
 
     public void DealCards() {
-        System.out.print("Dealing cards...");
-        //first 3 are for hidden
-        int i;
-        for (i=0; i<3; ++i) {
-            for (Hand h : mHands) {
-                h.AddHiddenCard(mDeck.Draw());
-            }
-        }
-        //next 7 are active!
-        for (i=0; i<7; ++i) {
-            for (Hand h : mHands) {
-                h.AddActiveCard(mDeck.Draw());
-            }
-        }
+        mTable.DealNewGame();
     }
 }
