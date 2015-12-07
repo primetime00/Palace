@@ -3,6 +3,8 @@
  */
 public class Core {
     public static void main(String [] args) {
-        System.out.print("Hello World");
+        Logic gameEngine = new Logic();
+        gameEngine.Run();
+
     }
 }
